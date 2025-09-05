@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
     
     return config;
   },
+  
+  // Disable server-side features for static export
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      { protocol: 'https', hostname: '**' },
+    ],
+  },
   async headers() {
     return [
       // Long-term caching for images and static files in public/
@@ -85,13 +93,6 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  },
-
-  images: {
-    // Allow remote token logos from arbitrary HTTPS hosts
-    remotePatterns: [
-      { protocol: 'https', hostname: '**' },
-    ],
   },
 };
 
