@@ -7,6 +7,8 @@ import { ChevronDownIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/re
 function PrivyWalletButton() {
   const { ready, authenticated, login, logout } = usePrivy();
   const { wallets } = useWallets();
+  
+  console.log('PrivyWalletButton state:', { ready, authenticated, walletsCount: wallets.length });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -114,7 +116,14 @@ function PrivyWalletButton() {
   return (
     <button
       suppressHydrationWarning
-      onClick={login}
+      onClick={() => {
+        console.log('Connect button clicked, authenticated:', authenticated);
+        if (authenticated) {
+          console.log('User already authenticated, should not call login again');
+          return;
+        }
+        login();
+      }}
       className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-[#19192A] hover:bg-[#555C6F] dark:bg-[#19192A] dark:hover:bg-[#555C6F] text-white rounded-2xl transition-all duration-200 font-medium"
     >
       <svg className="h-6 w-6 hidden sm:block" viewBox="0 0 24 24" fill="none">

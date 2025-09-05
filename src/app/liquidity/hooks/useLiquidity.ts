@@ -48,6 +48,10 @@ export interface TokenInfo {
 export function useLiquidity() {
   const { isConnected, address, provider, signer, chainId } = useStore()
   
+  const [positions, setPositions] = useState<LiquidityPosition[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
   // Debug: Log the actual values from useStore
   console.log('useLiquidity - useStore values:', {
     isConnected,
@@ -56,9 +60,14 @@ export function useLiquidity() {
     signer: !!signer,
     chainId
   })
-  const [positions, setPositions] = useState<LiquidityPosition[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  
+  // Also log positions state for debugging
+  console.log('useLiquidity - positions state:', {
+    positionsCount: positions.length,
+    loading,
+    error,
+    isAuthenticated: isConnected && !!address
+  })
 
   // Initialize SDK and contracts
   const getProvider = useCallback(async () => {
@@ -164,18 +173,7 @@ export function useLiquidity() {
         return true
       }
       
-      // 1. First, try to set allowance to 0 to reset any existing approval (for tokens like USDT)
-      try {
-        console.log('🔄 Resetting existing approval to 0...')
-        const resetTx = await tokenContract.approve(spenderAddress, 0)
-        const resetReceipt = await resetTx.wait()
-        console.log('✅ Reset approval to 0 confirmed:', resetReceipt.hash)
-      } catch (resetError) {
-        console.warn('⚠️ Could not reset approval to 0, continuing anyway:', resetError)
-        // Continue anyway - some tokens don't require reset
-      }
-      
-      // 2. Set new approval to max amount
+      // Set new approval to max amount directly (skip reset step to avoid extra popup)
       console.log('🎯 Setting new approval to max...')
       const tx = await tokenContract.approve(spenderAddress, maxApproval)
       console.log('📤 Approval transaction sent:', tx.hash)
@@ -285,7 +283,9 @@ export function useLiquidity() {
       if (!marketAddress || !routerAddress) throw new Error('Market or Router contract not deployed on this network')
       
       console.log('fetchPositions: Using market address:', marketAddress)
-      const marketContract = new ethers.Contract(marketAddress, MARKET_ABI, provider)
+      // Market contract inherits from Liquidity, so we need to combine the ABIs
+      const combinedMarketABI = [...MARKET_ABI, ...LIQUIDITY_ABI]
+      const marketContract = new ethers.Contract(marketAddress, combinedMarketABI, provider)
       const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, provider)
       
       // Optimized approach: First get Create events to find existing pairs, then check user balances
@@ -301,7 +301,7 @@ export function useLiquidity() {
       try {
         // Get Mint events from a much larger block range to catch older positions
         const currentBlock = await provider.getBlockNumber()
-        const fromBlock = Math.max(0, currentBlock - 5000000) // Increased to 5M blocks
+        const fromBlock = Math.max(0, currentBlock - 10000000) // Increased to 10M blocks to catch more history
         
         console.log(`fetchPositions: Searching Mint events from block ${fromBlock} to ${currentBlock}`)
         
@@ -337,14 +337,16 @@ export function useLiquidity() {
             // Get user's current LP token balance for this pair
             const [longX, shortX, longY, shortY] = await marketContract.balanceOf(address, pairId)
             
+            console.log(`fetchPositions: Balance check for pair ${pairIdStr}:`, {
+              longX: longX.toString(),
+              shortX: shortX.toString(),
+              longY: longY.toString(),
+              shortY: shortY.toString()
+            })
+            
             // Only create position if user currently has balance
             if (longX > 0n || shortX > 0n || longY > 0n || shortY > 0n) {
-              console.log(`fetchPositions: Found current balance in pair ${pairIdStr}:`, {
-                longX: longX.toString(),
-                shortX: shortX.toString(),
-                longY: longY.toString(),
-                shortY: shortY.toString()
-              })
+              console.log(`fetchPositions: ✅ Found current balance in pair ${pairIdStr}!`)
               
               // Find the Create event for this pair to get token addresses
               let token0Address = '0x0000000000000000000000000000000000000000'
@@ -533,7 +535,19 @@ export function useLiquidity() {
         }
         
         if (userPositions.length === 0) {
-          console.log('fetchPositions: No current positions found from Mint events')
+          console.log('fetchPositions: ❌ No current positions found from Mint events')
+          console.log('fetchPositions: This could mean:')
+          console.log('  1. No liquidity has been added yet')
+          console.log('  2. All liquidity has been removed')
+          console.log('  3. Block range is too narrow')
+          console.log('  4. User address mismatch')
+          console.log('fetchPositions: Current search parameters:', {
+            userAddress: address,
+            blockRange: `${fromBlock} to ${currentBlock}`,
+            mintEventsFound: mintEvents.length
+          })
+        } else {
+          console.log(`fetchPositions: ✅ Found ${userPositions.length} positions!`)
         }
         
       } catch (error) {
@@ -872,7 +886,9 @@ export function useLiquidity() {
       if (!marketAddress) throw new Error('Market contract not deployed')
 
       const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, signer)
-      const marketContract = new ethers.Contract(marketAddress, MARKET_ABI, signer)
+      // Market contract inherits from Liquidity, so we need to combine the ABIs
+      const combinedMarketABI = [...MARKET_ABI, ...LIQUIDITY_ABI]
+      const marketContract = new ethers.Contract(marketAddress, combinedMarketABI, signer)
       const liquidityContract = new ethers.Contract(marketAddress, LIQUIDITY_ABI, signer)
       const deadline = Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
       
@@ -982,8 +998,9 @@ export function useLiquidity() {
     console.log('Manual position refresh requested...')
     setLoading(true)
     
-    // Wait a bit for blockchain state to update
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Wait longer for blockchain state to update after transaction
+    console.log('Waiting 5 seconds for blockchain state to update...')
+    await new Promise(resolve => setTimeout(resolve, 5000))
     
     await fetchPositions()
     console.log('Manual position refresh completed')

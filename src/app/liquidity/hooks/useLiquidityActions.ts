@@ -20,8 +20,8 @@ export function useLiquidityActions() {
     console.log('🔍 Current positions before refresh:', positions?.length || 0)
     
     // Wait for blockchain state to update
-    console.log('⏳ Waiting 3 seconds for blockchain state update...')
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    console.log('⏳ Waiting 8 seconds for blockchain state update...')
+    await new Promise(resolve => setTimeout(resolve, 8000))
     
     // Try multiple refresh approaches with proper error handling
     let refreshSuccess = false

@@ -1,7 +1,7 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 // Replace this with any of the networks listed at https://github.com/wevm/viem/blob/main/src/chains/index.ts
 import {sonic} from 'viem/chains';
 

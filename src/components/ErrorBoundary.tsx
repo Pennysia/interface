@@ -1,6 +1,7 @@
 'use client'
 
-import React, { Component, ReactNode } from 'react'
+import React, { Component } from 'react'
+import type { ReactNode } from 'react'
 import { ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
 
 interface Props {

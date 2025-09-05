@@ -5,11 +5,13 @@ import { usePathname } from 'next/navigation'
 import { 
   ArrowsRightLeftIcon, 
   BeakerIcon, 
+  ChartBarIcon,
   HomeIcon,
 } from '@heroicons/react/24/outline'
 import {
   ArrowsRightLeftIcon as ArrowsRightLeftIconSolid,
   BeakerIcon as BeakerIconSolid,
+  ChartBarIcon as ChartBarIconSolid,
   HomeIcon as HomeIconSolid,
 } from '@heroicons/react/24/solid'
 import clsx from 'clsx'
@@ -22,6 +24,13 @@ const navigation = [
     icon: HomeIcon, 
     iconSolid: HomeIconSolid,
     description: 'Welcome to Pennysia'
+  },
+  { 
+    name: 'Market', 
+    href: '/market', 
+    icon: ChartBarIcon, 
+    iconSolid: ChartBarIconSolid,
+    description: 'View all pools and market data'
   },
   { 
     name: 'Swap', 

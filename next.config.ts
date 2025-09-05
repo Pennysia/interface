@@ -2,6 +2,47 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  
+  // Performance optimizations for development
+  experimental: {
+    optimizePackageImports: ['@heroicons/react', 'framer-motion', 'ethers'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Speed up development builds
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+      
+      // Reduce bundle analysis overhead in dev
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@': require('path').resolve(__dirname, './src'),
+      };
+    }
+    
+    return config;
+  },
   async headers() {
     return [
       // Long-term caching for images and static files in public/

@@ -10,6 +10,7 @@ import AddLiquidityModal from './components/AddLiquidityModal'
 import ImportPositionModal from './components/ImportTokenModal'
 import RemoveLiquidityModal from './components/RemoveLiquidityModal'
 import PositionOverviewModal from './components/PositionOverviewModal'
+import LPSwapModal from './components/LPSwapModal'
 
 // Import hooks
 import { useLiquidity, type LiquidityPosition } from './hooks/useLiquidity'
@@ -21,6 +22,7 @@ export default function LiquidityPage() {
   const [showRemoveLiquidityModal, setShowRemoveLiquidityModal] = useState(false)
   const [showImportPositionModal, setShowImportPositionModal] = useState(false)
   const [showPositionOverviewModal, setShowPositionOverviewModal] = useState(false)
+  const [showLPSwapModal, setShowLPSwapModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState<LiquidityPosition | null>(null)
 
   if (!ready) {
@@ -148,6 +150,10 @@ export default function LiquidityPage() {
           setShowPositionOverviewModal(false)
           setShowRemoveLiquidityModal(true)
         }}
+        onManageDirection={() => {
+          setShowPositionOverviewModal(false)
+          setShowLPSwapModal(true)
+        }}
       />
       
       <RemoveLiquidityModal
@@ -158,6 +164,13 @@ export default function LiquidityPage() {
           setShowRemoveLiquidityModal(false)
           setShowAddLiquidityModal(true)
         }}
+        onTransactionComplete={refreshPositions}
+      />
+      
+      <LPSwapModal
+        isOpen={showLPSwapModal}
+        onClose={() => setShowLPSwapModal(false)}
+        position={selectedPosition}
         onTransactionComplete={refreshPositions}
       />
     </div>

@@ -10,10 +10,11 @@
     "skipLibCheck": true,
     "noEmit": true,
     "incremental": true,
+    "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
     "module": "esnext",
     "esModuleInterop": true,
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -25,7 +26,10 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": false,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "next-env.d.ts",

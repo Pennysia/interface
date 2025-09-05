@@ -47,7 +47,16 @@ function TokenItem({ token, balance, onClick, showAddress = false, isWalletToken
         isWalletToken ? 'bg-gray-700/30' : ''
       }`}
     >
-      {token.logoURI && !imgError ? (
+      {/* Show Sonic logo for native token, otherwise use token's logoURI or fallback */}
+      {token.address === ethers.ZeroAddress ? (
+        <Image
+          src="/sonic-logo.avif"
+          alt="Sonic"
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-full"
+        />
+      ) : token.logoURI && !imgError ? (
         <Image
           src={token.logoURI}
           alt={token.symbol}
@@ -56,14 +65,11 @@ function TokenItem({ token, balance, onClick, showAddress = false, isWalletToken
           className="w-10 h-10 rounded-full"
           onError={() => setImgError(true)}
         />
-      ) : null}
-      <div 
-        className={`w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg ${
-          token.logoURI && !imgError ? 'hidden' : 'flex'
-        }`}
-      >
-        {token.symbol.charAt(0)}
-      </div>
+      ) : (
+        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+          {token.symbol.charAt(0)}
+        </div>
+      )}
       <div className="flex-1 text-left">
         <div className="text-white font-medium flex items-center">
           {token.symbol}

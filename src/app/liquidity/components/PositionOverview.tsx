@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
+import Image from 'next/image'
 import { ChainId, getMarketAddress, getRouterAddress } from '../../../lib'
 import { CURRENT_CHAIN_ID } from '@/config/chains'
-import { MARKET_ABI, ROUTER_ABI, ERC20_ABI } from '../../../lib/abis'
+import { MARKET_ABI, ROUTER_ABI, ERC20_ABI, LIQUIDITY_ABI } from '../../../lib/abis'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
-import { LiquidityPosition } from '../hooks/useLiquidity'
+import type { LiquidityPosition } from '../hooks/useLiquidity'
 
 interface PositionOverviewProps {
     position: LiquidityPosition
@@ -53,7 +54,9 @@ export default function PositionOverview({ position }: PositionOverviewProps) {
             const routerAddress = getRouterAddress(CURRENT_CHAIN_ID)
             if (!marketAddress || !routerAddress) throw new Error('Contract addresses not found')
 
-            const marketContract = new ethers.Contract(marketAddress, MARKET_ABI, provider)
+            // Market contract inherits from Liquidity, so we need to combine the ABIs
+            const combinedMarketABI = [...MARKET_ABI, ...LIQUIDITY_ABI]
+            const marketContract = new ethers.Contract(marketAddress, combinedMarketABI, provider)
             const routerContract = new ethers.Contract(routerAddress, ROUTER_ABI, provider)
 
             // Use the pair ID from the position.id field
@@ -182,8 +185,20 @@ export default function PositionOverview({ position }: PositionOverviewProps) {
                 <div className="p-6 bg-gray-200/30 dark:bg-gray-800/30 rounded-2xl">
                     <div className="flex items-center justify-between mb-4 border-b border-gray-500/50 pb-2">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-sm font-semibold">{token0Symbol}</span>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                                {position.token0Address === ethers.ZeroAddress || position.token0Address === '0x0000000000000000000000000000000000000000' ? (
+                                    <Image
+                                        src="/sonic-logo.avif"
+                                        alt="Sonic"
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-semibold">{token0Symbol}</span>
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <h3 className="text-gray-600 dark:text-gray-300 font-base">{token0Symbol}</h3>
@@ -278,8 +293,20 @@ export default function PositionOverview({ position }: PositionOverviewProps) {
                 <div className="p-6 bg-gray-200/30 dark:bg-gray-800/30 rounded-2xl">
                     <div className="flex items-center justify-between mb-4 border-b border-gray-500/50 pb-2">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-sm font-semibold">{token1Symbol}</span>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+                                {position.token1Address === ethers.ZeroAddress || position.token1Address === '0x0000000000000000000000000000000000000000' ? (
+                                    <Image
+                                        src="/sonic-logo.avif"
+                                        alt="Sonic"
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white text-sm font-semibold">{token1Symbol}</span>
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <h3 className="text-gray-600 dark:text-gray-300 font-base">{token1Symbol}</h3>

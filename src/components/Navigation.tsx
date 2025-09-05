@@ -28,13 +28,13 @@ const navigation = [
     iconSolid: HomeIconSolid,
     description: 'Welcome to Pennysia'
   },
-  // { 
-  //   name: 'Market', 
-  //   href: '/market', 
-  //   icon: ChartBarIcon, 
-  //   iconSolid: ChartBarIconSolid,
-  //   description: 'Protocol metrics and insights'
-  // },
+  { 
+    name: 'Market', 
+    href: '/market', 
+    icon: ChartBarIcon, 
+    iconSolid: ChartBarIconSolid,
+    description: 'View all pools and market data'
+  },
   { 
     name: 'Swap', 
     href: '/swap', 

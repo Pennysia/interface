@@ -8,6 +8,11 @@ import TokenSelectorModal from '../../../components/TokenSelectorModal'
 import { useLiquidity } from '../hooks/useLiquidity'
 import { type Token } from '../../../components/TokenSelectorModal'
 import toast from 'react-hot-toast'
+import { ethers } from 'ethers'
+import { getMarketAddress } from '../../../lib/sdk-utils'
+import { MARKET_ABI, LIQUIDITY_ABI } from '../../../lib/abis'
+import { CURRENT_CHAIN_ID } from '@/config/chains'
+import { useStore } from '../../../store/useStore'
 
 interface ImportPositionModalProps {
   isOpen: boolean
@@ -98,9 +103,57 @@ export default function ImportPositionModal({ isOpen, onClose, onPositionImporte
     setIsImporting(true)
     
     try {
-      console.log('🔍 Importing position for pair:', selectedTokenA.symbol, '/', selectedTokenB.symbol)
+      console.log('🔍 Checking position for pair:', selectedTokenA.symbol, '/', selectedTokenB.symbol)
       
-      // Refresh positions to fetch the specific pair
+      // Get provider and check if user is connected
+      const { provider, isConnected, address } = useStore.getState()
+      
+      if (!isConnected || !provider || !address) {
+        toast.error('Please connect your wallet first')
+        return
+      }
+
+      const marketAddress = getMarketAddress(CURRENT_CHAIN_ID)
+      if (!marketAddress) {
+        toast.error('Market contract not found for current network')
+        return
+      }
+
+      // Create market contract
+      const combinedMarketABI = [...MARKET_ABI, ...LIQUIDITY_ABI]
+      const marketContract = new ethers.Contract(marketAddress, combinedMarketABI, provider)
+
+      // Sort tokens to ensure proper order (token0 < token1)
+      const [token0, token1] = selectedTokenA.address.toLowerCase() < selectedTokenB.address.toLowerCase() 
+        ? [selectedTokenA, selectedTokenB] 
+        : [selectedTokenB, selectedTokenA]
+
+      console.log('🔍 Sorted tokens:', { token0: token0.symbol, token1: token1.symbol })
+
+      // Get pair ID for this token pair
+      const pairId = await marketContract.getPairId(token0.address, token1.address)
+      console.log('🔍 Pair ID:', pairId.toString())
+
+      // Check user's LP token balance for this pair
+      const [longX, shortX, longY, shortY] = await marketContract.balanceOf(address, pairId)
+      
+      console.log('🔍 User LP token balances:', {
+        longX: longX.toString(),
+        shortX: shortX.toString(),
+        longY: longY.toString(),
+        shortY: shortY.toString()
+      })
+
+      // Check if user has any LP tokens for this pair
+      const hasPosition = longX > 0n || shortX > 0n || longY > 0n || shortY > 0n
+
+      if (!hasPosition) {
+        toast.error(`No liquidity position found for ${token0.symbol}/${token1.symbol}`)
+        return
+      }
+
+      // Position exists! Refresh positions to show it
+      console.log('✅ Position found! Refreshing positions...')
       await fetchPositions()
       
       // Call the callback to refresh main page positions
@@ -108,11 +161,11 @@ export default function ImportPositionModal({ isOpen, onClose, onPositionImporte
         await onPositionImported()
       }
       
-      toast.success(`Position imported for ${selectedTokenA.symbol}/${selectedTokenB.symbol}`)
+      toast.success(`Position imported for ${token0.symbol}/${token1.symbol}`)
       onClose()
     } catch (error) {
       console.error('Error importing position:', error)
-      toast.error('Failed to import position')
+      toast.error('Failed to check position. Please try again.')
     } finally {
       setIsImporting(false)
     }
@@ -133,7 +186,7 @@ export default function ImportPositionModal({ isOpen, onClose, onPositionImporte
           </div>
           
           <p className="text-gray-400 mb-8">
-            Select a token pair to import your existing liquidity position.
+            Select a token pair to check if you have an existing liquidity position. This will search for any LP tokens you hold for the selected pair.
           </p>
           
           <div className="space-y-4 mb-8">
@@ -231,17 +284,17 @@ export default function ImportPositionModal({ isOpen, onClose, onPositionImporte
             {isImporting ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Importing Position...
+                Checking Position...
               </>
             ) : (
-              'Import Position'
+              'Check Position'
             )}
           </button>
           
           {/* Help Text */}
           {selectedTokenA && selectedTokenB && (
             <p className="text-gray-400 text-sm text-center mt-4">
-              Importing position for {selectedTokenA.symbol}/{selectedTokenB.symbol}
+              Will check for position: {selectedTokenA.symbol}/{selectedTokenB.symbol}
             </p>
           )}
         </div>
