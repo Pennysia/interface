@@ -54,6 +54,12 @@ npm run dev:https
 - **Real-time Price Impact**: Live calculations using Pennysia AMM math
 - **Slippage Protection**: Configurable tolerance settings
 
+### 📊 Markets Dashboard
+- **Token Overview**: Real-time token balances and contract information
+- **Pool Analytics**: Live TVL, long/short liquidity tracking
+- **Search & Filter**: Find tokens and pools quickly
+- **Responsive Tables**: Clean, modern data presentation
+
 ### 💰 Advanced AMM Mechanics
 - **Directional Liquidity**: Separate reserves for long/short positions
 - **0.3% Protocol Fee**: Consistent across all operations
@@ -85,10 +91,21 @@ npm run dev:https
 src/
 ├── app/                 # Next.js App Router
 │   ├── layout.tsx      # Root layout with providers
-│   └── page.tsx        # Main trading interface
+│   ├── page.tsx        # Main trading interface
+│   ├── market/         # Markets dashboard
+│   │   └── page.tsx    # Token and pool analytics
+│   ├── swap/           # Trading interface
+│   │   └── page.tsx    # Swap functionality
+│   └── liquidity/      # Liquidity management
+│       └── page.tsx    # LP operations
 ├── components/         # React components
 │   ├── Header.tsx      # Navigation and wallet connection
-│   └── SwapInterface.tsx # Main trading interface
+│   ├── SwapInterface.tsx # Main trading interface
+│   └── Navigation.tsx  # App navigation
+├── hooks/              # Custom React hooks
+│   └── usePools.ts     # Pool and token data fetching
+├── services/           # Data services
+│   └── poolService.ts  # Pool operations and calculations
 └── store/              # State management
     └── useStore.ts     # Zustand store with wallet logic
 ```
@@ -101,12 +118,24 @@ src/
 3. The app will automatically prompt you to switch to Sonic Mainnet (Chain ID: 146) if needed
 4. Approve the network addition/switch in your wallet
 
+### Navigate the App
+1. **Markets**: View all available tokens and pools with real-time data
+2. **Swap**: Execute directional trades (Long/Short positions)
+3. **Liquidity**: Manage your liquidity positions
+
 ### Make a Trade
-1. Select your position type (Long/Short)
-2. Enter the amount you want to trade
-3. Review price impact and slippage
-4. Click "Swap" to execute the trade
-5. Confirm the transaction in MetaMask
+1. Go to the Swap page
+2. Select your position type (Long/Short)
+3. Enter the amount you want to trade
+4. Review price impact and slippage
+5. Click "Swap" to execute the trade
+6. Confirm the transaction in your wallet
+
+### View Market Data
+1. Navigate to the Markets page
+2. Switch between "Cryptos" and "Pools" tabs
+3. Use the search bar to find specific tokens or pools
+4. View real-time balances, TVL, and liquidity information
 
 ### Adjust Settings
 1. Click the settings icon (⚙️) in the swap interface
