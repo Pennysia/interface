@@ -6,6 +6,7 @@ import {
   Token, 
   PennysiaPair,
   getChainInfoWithRpc,
+  getChainInfo,
   NATIVE_CURRENCY,
   WETH
 } from '@/lib/index'
@@ -208,6 +209,10 @@ export const useStore = create<AppState>((set, get) => ({
           }
           
           const chainInfo = getChainInfo(targetChainId)
+          if (!chainInfo) {
+            throw new Error(`Chain ${targetChainId} not supported`)
+          }
+          
           await (window.ethereum as any).request({
             method: 'wallet_addEthereumChain',
             params: [{
