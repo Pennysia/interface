@@ -26,10 +26,9 @@ export function usePools(): UsePoolsReturn {
       
       const poolService = getPoolService(provider)
       
-      // Get all pools - start from a reasonable block to avoid too much history
-      // You might want to adjust this based on when the protocol was deployed
-      const currentBlock = await provider.getBlockNumber()
-      const fromBlock = Math.max(0, currentBlock - 100000) // Last ~100k blocks
+      // Get all pools from genesis or deployment block
+      // Start from block 0 to capture all historical pools
+      const fromBlock = 0
       
       const poolData = await poolService.getAllPools(fromBlock)
       setPools(poolData)
@@ -140,8 +139,9 @@ export function useTokens(): UseTokensReturn {
       const provider = new ethers.JsonRpcProvider('https://rpc.soniclabs.com')
       const poolService = getPoolService(provider)
       
-      const currentBlock = await provider.getBlockNumber()
-      const fromBlock = Math.max(0, currentBlock - 100000)
+      // Get all tokens from genesis or deployment block
+      // Start from block 0 to capture all historical tokens
+      const fromBlock = 0
       
       const tokenData = await poolService.getAllTokens(fromBlock)
       setTokens(tokenData)
