@@ -2,9 +2,9 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
+  // Removed 'output: export' to enable SPA routing
+  trailingSlash: false,
+  skipTrailingSlashRedirect: false,
   
   // Performance optimizations for development
   experimental: {
@@ -49,9 +49,8 @@ const nextConfig: NextConfig = {
     return config;
   },
   
-  // Disable server-side features for static export
+  // Image optimization settings
   images: {
-    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
