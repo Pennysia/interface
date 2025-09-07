@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { XMarkIcon, ArrowsUpDownIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { type LiquidityPosition } from "../hooks/useLiquidity";
 import { ethers } from "ethers";
@@ -24,6 +24,8 @@ interface SwapSide {
   from: "long" | "short";
   to: "long" | "short";
   amount: string;
+  expectedOutput?: string;
+  isCalculating?: boolean;
 }
 
 export default function LPSwapModal({
@@ -37,14 +39,19 @@ export default function LPSwapModal({
     from: "long",
     to: "short",
     amount: "",
+    expectedOutput: "",
+    isCalculating: false,
   });
   const [ySideSwap, setYSideSwap] = useState<SwapSide>({
     enabled: false,
     from: "long",
     to: "short",
     amount: "",
+    expectedOutput: "",
+    isCalculating: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showTransactionResult, setShowTransactionResult] = useState(false);
   const [transactionResult, setTransactionResult] = useState<{
     success: boolean;
@@ -96,6 +103,130 @@ export default function LPSwapModal({
     if (num < 0.000001) return num.toExponential(3);
     return num.toFixed(6);
   };
+
+  // Calculate expected output for LP swap
+  const calculateLPSwapOutput = useCallback(async (
+    amount: string,
+    fromDirection: "long" | "short",
+    toDirection: "long" | "short",
+    tokenSide: "token0" | "token1"
+  ): Promise<string> => {
+    if (!position || !amount || parseFloat(amount) <= 0) return "";
+
+    try {
+      const { provider, isConnected } = useStore.getState();
+      
+      // Use read-only provider for calculations
+      const rpcProvider = new ethers.JsonRpcProvider('https://rpc.soniclabs.com');
+      const calculationProvider = provider || rpcProvider;
+
+      const routerAddress = getRouterAddress(CURRENT_CHAIN_ID);
+      if (!routerAddress) return "";
+
+      const routerContract = new ethers.Contract(
+        routerAddress,
+        ROUTER_ABI,
+        calculationProvider
+      );
+
+      // Prepare parameters for simulation
+      const longToShort = fromDirection === "long" && toDirection === "short";
+      const liquidity = ethers.parseUnits(amount, 18);
+
+      // Simulate the liquiditySwap call to get expected output
+      const result = await routerContract.liquiditySwap.staticCall(
+        position.token0Address,
+        position.token1Address,
+        tokenSide === "token0" ? longToShort : false, // longToShort0
+        tokenSide === "token0" ? liquidity : 0n,      // liquidity0
+        tokenSide === "token1" ? longToShort : false, // longToShort1
+        tokenSide === "token1" ? liquidity : 0n,      // liquidity1
+        0n, // liquidity0OutMinimum
+        0n, // liquidity1OutMinimum
+        position.token0Address, // dummy address for simulation
+        Math.floor(Date.now() / 1000) + 600 // deadline
+      );
+
+      // Extract the relevant output amount
+      const outputAmount = tokenSide === "token0" ? result[0] : result[1];
+      return ethers.formatUnits(outputAmount, 18);
+    } catch (error) {
+      console.warn("LP swap calculation failed:", error);
+      return "";
+    }
+  }, [position]);
+
+  // Debounced calculation for X side
+  useEffect(() => {
+    if (!xSideSwap.enabled || !xSideSwap.amount || !position) {
+      setXSideSwap(prev => ({ ...prev, expectedOutput: "", isCalculating: false }));
+      return;
+    }
+
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setXSideSwap(prev => ({ ...prev, isCalculating: true }));
+
+    timeoutRef.current = setTimeout(async () => {
+      const output = await calculateLPSwapOutput(
+        xSideSwap.amount,
+        xSideSwap.from,
+        xSideSwap.to,
+        "token0"
+      );
+      
+      setXSideSwap(prev => ({
+        ...prev,
+        expectedOutput: output,
+        isCalculating: false
+      }));
+    }, 500); // 500ms debounce
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [xSideSwap.amount, xSideSwap.from, xSideSwap.to, xSideSwap.enabled, calculateLPSwapOutput]);
+
+  // Debounced calculation for Y side
+  useEffect(() => {
+    if (!ySideSwap.enabled || !ySideSwap.amount || !position) {
+      setYSideSwap(prev => ({ ...prev, expectedOutput: "", isCalculating: false }));
+      return;
+    }
+
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setYSideSwap(prev => ({ ...prev, isCalculating: true }));
+
+    timeoutRef.current = setTimeout(async () => {
+      const output = await calculateLPSwapOutput(
+        ySideSwap.amount,
+        ySideSwap.from,
+        ySideSwap.to,
+        "token1"
+      );
+      
+      setYSideSwap(prev => ({
+        ...prev,
+        expectedOutput: output,
+        isCalculating: false
+      }));
+    }, 500); // 500ms debounce
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [ySideSwap.amount, ySideSwap.from, ySideSwap.to, ySideSwap.enabled, calculateLPSwapOutput]);
 
   const handleLPSwap = async () => {
     if (!position) {
@@ -364,8 +495,9 @@ export default function LPSwapModal({
             </div>
           </div>
 
-          {/* X Side Swap */}
-          <div className="space-y-4 pb-4">
+          {/* Swap Sections */}
+          <div className="space-y-4">
+            {/* X Side Swap */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -546,8 +678,43 @@ export default function LPSwapModal({
                       {formatNumber(
                         getAvailableBalance("token0", xSideSwap.from)
                       )}{" "}
-                      {position.token0Symbol} {xSideSwap.from}
+                      {xSideSwap.from === "long" ? "Long" : "Short"}{" "}
+                      {position.token0Symbol}
                     </div>
+
+                    {/* Expected Output Display */}
+                    {xSideSwap.enabled && xSideSwap.amount && (
+                      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            You will receive:
+                          </span>
+                          <div className="text-right">
+                            {xSideSwap.isCalculating ? (
+                              <div className="flex items-center gap-2">
+                                <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                                <span className="text-sm text-blue-600 dark:text-blue-400">
+                                  Calculating...
+                                </span>
+                              </div>
+                            ) : xSideSwap.expectedOutput ? (
+                              <div>
+                                <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                                  {formatNumber(xSideSwap.expectedOutput)}
+                                </span>
+                                <span className="text-xs text-blue-600 dark:text-blue-400 ml-1">
+                                  {xSideSwap.to === "long" ? "Long" : "Short"} {position.token0Symbol}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                Enter amount to see estimate
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -734,8 +901,43 @@ export default function LPSwapModal({
                       {formatNumber(
                         getAvailableBalance("token1", ySideSwap.from)
                       )}{" "}
-                      {position.token1Symbol} {ySideSwap.from}
+                      {ySideSwap.from === "long" ? "Long" : "Short"}{" "}
+                      {position.token1Symbol}
                     </div>
+
+                    {/* Expected Output Display */}
+                    {ySideSwap.enabled && ySideSwap.amount && (
+                      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            You will receive:
+                          </span>
+                          <div className="text-right">
+                            {ySideSwap.isCalculating ? (
+                              <div className="flex items-center gap-2">
+                                <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                                <span className="text-sm text-blue-600 dark:text-blue-400">
+                                  Calculating...
+                                </span>
+                              </div>
+                            ) : ySideSwap.expectedOutput ? (
+                              <div>
+                                <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                                  {formatNumber(ySideSwap.expectedOutput)}
+                                </span>
+                                <span className="text-xs text-blue-600 dark:text-blue-400 ml-1">
+                                  {ySideSwap.to === "long" ? "Long" : "Short"} {position.token1Symbol}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                Enter amount to see estimate
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

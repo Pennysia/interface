@@ -35,14 +35,13 @@ function FeatureCards() {
                     <div className="dark:bg-gray-500/50 bg-gray-300/50 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/rc1.svg"
-                                alt="Pennysia Logo"
-                                width={300}
-                                height={300}
+                                src="/homePage/hero-image.svg"
+                                alt="Pennysia AMM Interface"
+                                width={381}
+                                height={240}
                                 className="w-full h-auto sm:max-w-[320px] md:max-w-[381px]"
                                 style={{ objectFit: 'contain' }}
                                 priority={true}
-                                quality={100}
                             />
                         </div>
                     </div>
@@ -62,14 +61,13 @@ function FeatureCards() {
                     <div className="bg-gray-500 dark:bg-gray-300 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/rc2.svg"
-                                alt="Pennysia Logo"
+                                src="/homePage/feature-card-2.svg"
+                                alt="Directional Liquidity"
                                 width={280}
-                                height={280}
+                                height={176}
                                 className="w-full h-auto sm:max-w-[250px] md:max-w-[280px]"
                                 style={{ objectFit: 'contain' }}
                                 priority={true}
-                                quality={100}
                             />
                         </div>
                     </div>
@@ -90,14 +88,13 @@ function FeatureCards() {
                     <div className="dark:bg-gray-700/50 bg-gray-300/50 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/rc3.svg"
-                                alt="Pennysia Logo"
+                                src="/homePage/feature-card-3.svg"
+                                alt="Prediction Market Mechanics"
                                 width={280}
-                                height={280}
+                                height={176}
                                 className="w-full h-auto sm:max-w-[250px] md:max-w-[280px]"
                                 style={{ objectFit: 'contain' }}
                                 priority={true}
-                                quality={100}
                             />
                         </div>
                     </div>

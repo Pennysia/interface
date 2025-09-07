@@ -16,24 +16,22 @@ function Header() {
               <Link href="/" className="cursor-pointer transition-opacity flex items-center">
                   <Image
                     src="/pennysia-brandkit/full-logo/light-mode-full-logo.svg"
-                    alt="Pennysia logo light"
-                    width={140}
-                    height={320}
+                    alt="Pennysia Logo"
+                    width={120}
+                    height={40}
                     className="block dark:hidden"
                     style={{ objectFit: "cover" }}
                     priority={true}
-                    quality={100}
                     placeholder="empty"
                   />
                   <Image
                     src="/pennysia-brandkit/full-logo/dark-mode-full-logo.svg"
-                    alt="Pennysia logo dark"
-                    width={140}
-                    height={320}
+                    alt="Pennysia Logo"
+                    width={120}
+                    height={40}
                     className="hidden dark:block"
                     style={{ objectFit: "cover"}}
                     priority={true}
-                    quality={100}
                     placeholder="empty"
                   />
               </Link>

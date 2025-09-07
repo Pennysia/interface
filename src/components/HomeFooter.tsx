@@ -18,23 +18,21 @@ export default function HomeFooter() {
               >
                 <Image
                   src="/pennysia-brandkit/full-logo/light-mode-full-logo.svg"
-                  alt="Pennysia logo light"
-                  width={180}
-                  height={400}
+                  alt="Pennysia Logo"
+                  width={120}
+                  height={40}
                   className="block dark:hidden"
                   style={{ objectFit: "cover" }}
                   priority={true}
-                  quality={100}
                 />
                 <Image
                   src="/pennysia-brandkit/full-logo/dark-mode-full-logo.svg"
-                  alt="Pennysia logo dark"
-                  width={180}
-                  height={400}
+                  alt="Pennysia Logo"
+                  width={120}
+                  height={40}
                   className="hidden dark:block"
                   style={{ objectFit: "cover" }}
                   priority={true}
-                  quality={100}
                 />
               </Link>
               <p className="text-gray-400 dark:text-gray-600 text-[10px] mb-6 ">
