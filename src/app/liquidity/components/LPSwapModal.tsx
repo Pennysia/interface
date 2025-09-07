@@ -160,12 +160,35 @@ export default function LPSwapModal({
         return;
       }
 
+      const marketAddress = getMarketAddress(CURRENT_CHAIN_ID);
+      if (!marketAddress) {
+        toast.error("Market contract not found for current network");
+        return;
+      }
+
       const signer = await provider.getSigner();
       const routerContract = new ethers.Contract(
         routerAddress,
         ROUTER_ABI,
         signer
       );
+
+      // Market contract inherits from Liquidity, so we need to combine the ABIs
+      const combinedMarketABI = [...MARKET_ABI, ...LIQUIDITY_ABI];
+      const marketContract = new ethers.Contract(marketAddress, combinedMarketABI, signer);
+      const liquidityContract = new ethers.Contract(marketAddress, LIQUIDITY_ABI, signer);
+
+      // Calculate poolId for LP token approval using Market ABI
+      const poolId = await marketContract.getPairId(position.token0Address, position.token1Address);
+      
+      console.log('🔐 Approving Router to transfer LP tokens for poolId:', poolId.toString());
+      
+      // Approve Router to transfer LP tokens (TTL-based approval) using Liquidity ABI
+      const approvalDeadline = Math.floor(Date.now() / 1000) + 7200; // 2 hours from now
+      const approvalTx = await liquidityContract.approve(routerAddress, poolId, approvalDeadline);
+      await approvalTx.wait();
+      
+      console.log('✅ LP token approval successful');
 
       // Prepare swap parameters
       const longToShort0 = xSideSwap.enabled
