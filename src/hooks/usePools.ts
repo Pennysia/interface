@@ -46,10 +46,9 @@ export function usePools(): UsePoolsReturn {
   }, [fetchPools])
 
   useEffect(() => {
-    if (ready) {
-      fetchPools()
-    }
-  }, [ready, fetchPools])
+    // Fetch pools immediately, don't wait for wallet connection
+    fetchPools()
+  }, [fetchPools])
 
   return {
     pools,
@@ -159,10 +158,9 @@ export function useTokens(): UseTokensReturn {
   }, [fetchTokens])
 
   useEffect(() => {
-    if (ready) {
-      fetchTokens()
-    }
-  }, [ready, fetchTokens])
+    // Fetch tokens immediately, don't wait for wallet connection
+    fetchTokens()
+  }, [fetchTokens])
 
   return {
     tokens,
