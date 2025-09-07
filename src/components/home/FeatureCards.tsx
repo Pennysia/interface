@@ -35,7 +35,7 @@ function FeatureCards() {
                     <div className="dark:bg-gray-500/50 bg-gray-300/50 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/hero-image.svg"
+                                src="/homePage/rc1.svg"
                                 alt="Pennysia AMM Interface"
                                 width={381}
                                 height={240}
@@ -61,7 +61,7 @@ function FeatureCards() {
                     <div className="bg-gray-500 dark:bg-gray-300 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/feature-card-2.svg"
+                                src="/homePage/rc2.svg"
                                 alt="Directional Liquidity"
                                 width={280}
                                 height={176}
@@ -88,7 +88,7 @@ function FeatureCards() {
                     <div className="dark:bg-gray-700/50 bg-gray-300/50 rounded-t-2xl w-full h-auto mx-auto flex items-center justify-center">
                         <div className="p-4 w-full h-60 flex items-center justify-center transform-gpu">
                             <Image
-                                src="/homePage/feature-card-3.svg"
+                                src="/homePage/rc3.svg"
                                 alt="Prediction Market Mechanics"
                                 width={280}
                                 height={176}
