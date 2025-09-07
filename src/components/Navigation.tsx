@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   ArrowsRightLeftIcon, 
   BeakerIcon, 
@@ -57,6 +57,18 @@ interface NavigationProps {
 
 function Navigation({ className }: NavigationProps) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    
+    // Don't navigate if already on the same page
+    if (pathname === href) {
+      return
+    }
+    
+    router.push(href)
+  }
 
   return (
     <nav className={clsx('relative flex space-x-2 p-1 rounded-xl', className)}>
@@ -67,10 +79,11 @@ function Navigation({ className }: NavigationProps) {
           <Link
             key={item.name}
             href={item.href}
+            onClick={(e) => handleNavigation(e, item.href)}
             className={clsx(
               'relative group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200',
               isActive
-                ? 'text-blue-500'
+                ? 'text-purple-600 dark:text-purple-400'
                 : 'text-gray-600 dark:text-gray-200 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-gray-800/50'
             )}
             title={item.description}
@@ -78,7 +91,7 @@ function Navigation({ className }: NavigationProps) {
             {isActive && (
               <motion.span
                 layoutId="nav-active-pill-desktop"
-                className="absolute inset-0 rounded-lg bg-blue-300/30 shadow-sm shadow-blue-500/20 dark:bg-blue-400/20 z-0"
+                className="absolute inset-0 rounded-lg bg-purple-500/20 shadow-sm shadow-purple-500/30 dark:bg-purple-400/20 z-0"
                 transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 1 }}
               />
             )}
