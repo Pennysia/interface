@@ -2,9 +2,10 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Removed 'output: export' to enable SPA routing
-  trailingSlash: false,
-  skipTrailingSlashRedirect: false,
+  // Use static export for production builds, SPA for development
+  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+  trailingSlash: process.env.NODE_ENV === 'production' ? true : false,
+  skipTrailingSlashRedirect: process.env.NODE_ENV === 'production' ? true : false,
   
   // Performance optimizations for development
   experimental: {
@@ -51,6 +52,7 @@ const nextConfig: NextConfig = {
   
   // Image optimization settings
   images: {
+    unoptimized: process.env.NODE_ENV === 'production',
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
     ],
