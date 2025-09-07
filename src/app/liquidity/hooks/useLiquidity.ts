@@ -299,17 +299,70 @@ export function useLiquidity() {
       console.log('fetchPositions: Querying Mint events for user positions...')
       
       try {
-        // Get Mint events from a much larger block range to catch older positions
+        // Get current block and calculate search range
         const currentBlock = await provider.getBlockNumber()
         const fromBlock = Math.max(0, currentBlock - 50000000) // Increased to 50M blocks to catch more history
         
-        console.log(`fetchPositions: Searching Mint events from block ${fromBlock} to ${currentBlock}`)
+        console.log(`fetchPositions: Searching from block ${fromBlock} to ${currentBlock} (range: ${currentBlock - fromBlock} blocks)`)
         
-        // Query Mint events where the user is the 'to' address (received LP tokens)
+        // Strategy 1: Try to find Mint events for the user
+        console.log('fetchPositions: Strategy 1 - Searching for Mint events...')
         const mintFilter = marketContract.filters.Mint(null, address, null)
-        const mintEvents = await marketContract.queryFilter(mintFilter, fromBlock, currentBlock)
+        let mintEvents: any[] = []
         
-        console.log(`fetchPositions: Found ${mintEvents.length} Mint events for user`)
+        try {
+          mintEvents = await marketContract.queryFilter(mintFilter, fromBlock, currentBlock)
+          console.log(`fetchPositions: Found ${mintEvents.length} Mint events for user ${address}`)
+        } catch (mintError) {
+          console.warn('fetchPositions: Mint event query failed, trying smaller range:', mintError)
+          // Try with smaller range if the query fails
+          const smallerFromBlock = Math.max(0, currentBlock - 1000000) // 1M blocks
+          try {
+            mintEvents = await marketContract.queryFilter(mintFilter, smallerFromBlock, currentBlock)
+            console.log(`fetchPositions: Found ${mintEvents.length} Mint events with smaller range`)
+          } catch (smallerError) {
+            console.error('fetchPositions: Even smaller range failed:', smallerError)
+          }
+        }
+        
+        // Strategy 2: If no Mint events found, try checking all existing pairs
+        if (mintEvents.length === 0) {
+          console.log('fetchPositions: Strategy 2 - No Mint events found, checking all existing pairs...')
+          
+          // Get all Create events to find existing pairs
+          try {
+            const createFilter = marketContract.filters.Create()
+            const createEvents = await marketContract.queryFilter(createFilter, fromBlock, currentBlock)
+            console.log(`fetchPositions: Found ${createEvents.length} Create events (existing pairs)`)
+            
+            // Check user balance for each existing pair
+            for (const createEvent of createEvents.slice(0, 50)) { // Limit to first 50 pairs to avoid timeout
+              if ('args' in createEvent && createEvent.args) {
+                const pairId = createEvent.args[2]
+                const pairIdStr = pairId.toString()
+                
+                try {
+                  const [longX, shortX, longY, shortY] = await marketContract.balanceOf(address, pairId)
+                  
+                  if (longX > 0n || shortX > 0n || longY > 0n || shortY > 0n) {
+                    console.log(`fetchPositions: ✅ Found balance in existing pair ${pairIdStr}!`)
+                    // Create a fake mint event to process this pair
+                    mintEvents.push({
+                      args: [null, address, pairId],
+                      blockNumber: createEvent.blockNumber,
+                      transactionHash: createEvent.transactionHash
+                    } as any)
+                  }
+                } catch (balanceError) {
+                  console.warn(`fetchPositions: Could not check balance for pair ${pairIdStr}:`, balanceError)
+                }
+              }
+            }
+            console.log(`fetchPositions: Strategy 2 found ${mintEvents.length} pairs with user balance`)
+          } catch (createError) {
+            console.error('fetchPositions: Could not query Create events:', createError)
+          }
+        }
         
         // Track unique pair IDs to avoid duplicates
         const processedPairs = new Set<string>()
