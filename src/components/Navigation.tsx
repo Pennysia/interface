@@ -73,7 +73,7 @@ function Navigation({ className }: NavigationProps) {
   return (
     <nav className={clsx('relative flex space-x-2 p-1 rounded-xl', className)}>
       {navigation.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/')
         
         return (
           <Link

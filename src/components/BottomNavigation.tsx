@@ -67,7 +67,7 @@ export default function BottomNavigation() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-gray-200/50 dark:border-white/10 transition-colors duration-300">
       <div className="relative flex justify-around items-center px-4 py-2 safe-area-pb">
         {navigation.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/')
           const Icon = isActive ? item.iconSolid : item.icon
           
           return (
