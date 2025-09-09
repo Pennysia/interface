@@ -1,6 +1,8 @@
 "use client";
 
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
+import Image from 'next/image';
+import { ethers } from 'ethers';
 import type { LiquidityPosition } from "../hooks/useLiquidity";
 
 interface LiquidityPositionCardProps {
@@ -27,15 +29,39 @@ export default function LiquidityPositionCard({
           <div className="flex items-center space-x-4">
             {/* Token pair icons */}
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center relative z-10">
-                <span className="text-white text-xs font-bold">
-                  {position.token0Symbol}
-                </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+                {position.token0Address === ethers.ZeroAddress || position.token0Address === '0x0000000000000000000000000000000000000000' ? (
+                  <Image
+                    src="/sonic-logo.avif"
+                    alt="Sonic"
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      {position.token0Symbol}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center -ml-2">
-                <span className="text-white text-xs font-bold">
-                  {position.token1Symbol}
-                </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center -ml-2 overflow-hidden">
+                {position.token1Address === ethers.ZeroAddress || position.token1Address === '0x0000000000000000000000000000000000000000' ? (
+                  <Image
+                    src="/sonic-logo.avif"
+                    alt="Sonic"
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      {position.token1Symbol}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
