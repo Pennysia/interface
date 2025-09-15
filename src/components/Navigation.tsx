@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { 
   ArrowsRightLeftIcon, 
   BeakerIcon, 
@@ -57,18 +57,6 @@ interface NavigationProps {
 
 function Navigation({ className }: NavigationProps) {
   const pathname = usePathname()
-  const router = useRouter()
-
-  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
-    
-    // Don't navigate if already on the same page
-    if (pathname === href) {
-      return
-    }
-    
-    router.push(href)
-  }
 
   return (
     <nav className={clsx('relative flex space-x-2 p-1 rounded-xl', className)}>
@@ -79,7 +67,6 @@ function Navigation({ className }: NavigationProps) {
           <Link
             key={item.name}
             href={item.href}
-            onClick={(e) => handleNavigation(e, item.href)}
             className={clsx(
               'relative group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200',
               isActive
