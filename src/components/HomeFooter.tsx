@@ -85,7 +85,7 @@ export default function HomeFooter() {
                 </a>
 
                 <a
-                  href="https://discord.gg/QHfJz63b3J"
+                  href="https://discord.gg/G7rxGgZhXa"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
