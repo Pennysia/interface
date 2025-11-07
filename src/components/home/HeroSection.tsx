@@ -4,10 +4,10 @@ import { CURRENT_CHAIN_NAME } from '@/config/chains'
 
 export default function HeroSection() {
   return (
-    <div className="relative text-center items-center flex flex-col overflow-visible rounded-3xl mt-26 xl:mt-30">
+    <div className="relative text-center items-center flex flex-col overflow-visible rounded-3xl">
       <div className="max-w-7xl mx-auto relative z-20">
       {/* Background SVG (proportional height via intrinsic dimensions) */}
-      <div className="px-4 lg:px-0 w-full max-w-[650px] lg:max-w-[680px] mx-auto pointer-events-none select-none">
+      <div className="px-4 pt-5 lg:px-0 w-full max-w-[650px] lg:max-w-[680px] mx-auto pointer-events-none select-none">
         <Image
           src="/homePage/heroBg.svg"
           alt=""

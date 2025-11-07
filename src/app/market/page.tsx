@@ -172,7 +172,7 @@ export default function MarketsPage() {
   });
 
   return (
-    <div className="pt-24 min-h-screen bg-gray-50 dark:bg-[var(--background)] ">
+    <div className="pt-4 min-h-screen bg-gray-50 dark:bg-[var(--background)] ">
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">

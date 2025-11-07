@@ -60,3 +60,16 @@ html, body {
   background-color: var(--background);
   min-height: 100vh;
 }
+
+/* Utility classes for header + announcement banner spacing */
+@layer utilities {
+  /* Default spacing for header only (existing behavior) */
+  .header-offset {
+    @apply mt-24 sm:mt-26 xl:mt-30;
+  }
+  
+  /* Additional spacing when announcement banner is visible */
+  .header-announcement-offset {
+    @apply mt-36 sm:mt-40 xl:mt-44;
+  }
+}

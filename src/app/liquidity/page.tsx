@@ -27,7 +27,7 @@ export default function LiquidityPage() {
 
   if (!ready) {
     return (
-      <div className="pt-24 min-h-screen bg-gray-50 dark:bg-[var(--background)] pb-20">
+      <div className="pt-4 min-h-screen bg-gray-50 dark:bg-[var(--background)] pb-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading...</p>
@@ -37,7 +37,7 @@ export default function LiquidityPage() {
   }
 
   return (
-    <div className="pt-24 min-h-screen bg-gray-50 dark:bg-[var(--background)] pb-20">
+    <div className="pt-4 min-h-screen bg-gray-50 dark:bg-[var(--background)] pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {/* Page Header
         <div className="mb-6 space-y-2">

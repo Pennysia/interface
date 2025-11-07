@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import PrivyWrapper from '@/contexts/PrivyProvider'
 import AuthBridge from '@/components/AuthBridge'
 import Header from '@/components/Header'
+import AnnouncementBanner from '@/components/AnnouncementBanner'
 import BottomNavigation from '@/components/BottomNavigation'
 import Script from 'next/script'
 import { CURRENT_RPC_URL } from '@/config/chains'
@@ -72,11 +73,14 @@ export default function RootLayout({
         <ThemeProvider>
           <PrivyWrapper>
             <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white transition-colors duration-300">
+              <div className="pt-20">
+                <AnnouncementBanner />
+                <main className="bg-gray-50 dark:bg-[var(--background)]">
+                  {children}
+                </main>
+              </div>
               <AuthBridge />
               <Header />
-              <main className="bg-gray-50 dark:bg-[var(--background)]">
-                {children}
-              </main>
               <BottomNavigation />
             </div>
           </PrivyWrapper>
