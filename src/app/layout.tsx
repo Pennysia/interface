@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   description: "Trade with directional liquidity positions on Pennysia AMM. Long and short positions with advanced AMM mechanics.",
   keywords: "DeFi, AMM, DEX, Directional Liquidity, Trading, Ethereum, Sonic",
   authors: [{ name: "Pennysia Team" }],
+  metadataBase: new URL('https://mvp.pennysia.com'),
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
