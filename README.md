@@ -2,6 +2,20 @@
 
 A beautiful, modern frontend for the Pennysia directional AMM protocol built with Next.js, TypeScript, and Tailwind CSS.
 
+**🏆 Built for Sonic S-tier Hackathon | MVP/Prototype Version**
+
+## ⚠️ **HACKATHON MVP - NOT FOR PRODUCTION**
+
+> **🚨 IMPORTANT DISCLAIMER**: This is a **Minimum Viable Product (MVP)** developed during the **Sonic S-tier Hackathon**. 
+> 
+> **DO NOT USE IN PRODUCTION**:
+> - ❌ **No security audits** have been conducted
+> - ❌ **Unaudited smart contracts** - funds may be at risk
+> - ❌ **Prototype code** - may contain bugs and vulnerabilities
+> - ❌ **For demonstration purposes only**
+>
+> This project is intended to showcase the Pennysia AMM concept and should only be used for testing and evaluation purposes.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -151,11 +165,13 @@ src/
 
 ## 🚨 Important Notes
 
-- **Mainnet Deployment**: This is deployed on Sonic Mainnet with real value
-- **Real Transactions**: All trades use real tokens with monetary value
-- **Production Ready**: Full-featured AMM with directional liquidity
+- **Hackathon MVP**: Built during Sonic S-tier Hackathon - **NOT PRODUCTION READY**
+- **No Security Audits**: Smart contracts and frontend code are **UNAUDITED**
+- **Prototype Status**: This is experimental code for demonstration purposes only
+- **Testnet Recommended**: If testing, use testnet tokens to avoid financial risk
 - **Single Chain**: Only Sonic Mainnet (Chain ID: 146) is supported
 - **Automatic Network Switching**: App will prompt to switch networks if needed
+- **Use at Own Risk**: Any interaction with deployed contracts is at your own risk
 
 
 ## 🛠️ Development
